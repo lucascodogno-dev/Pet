@@ -18,6 +18,7 @@ const App = () => {
         <Route path="/clients" element={<ClientList />} />
         <Route path="/products" element={<ProductForm />} />
         <Route path="/pacotes" element={<PacoteForm onSave={addPacote} />} />
+        <Route path="*" element={<ClientForm />} />
       </Routes>
     </Router>
   );

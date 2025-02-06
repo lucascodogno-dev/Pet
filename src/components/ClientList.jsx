@@ -66,7 +66,7 @@ const ClientList = () => {
           onChange={(e) => setSearch(e.target.value)}
           margin="normal"
         />
-
+{filteredClients <= 0 ? "não possui clientes" : "possui cliente"}
         {/* Lista de clientes filtrados */}
         <List>
           {filteredClients.map((client) => (

@@ -23,3 +23,7 @@ input {
   margin: 5px 0;
   padding: 5px;
 }
+
+.css-cyqh1t-MuiPaper-root-MuiDrawer-paper { 
+  width: 250px !important;
+  }

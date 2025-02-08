@@ -1,44 +1,44 @@
-import React, { useState, useEffect } from "react";
-import {
-  Modal,
-  Box,
-  Typography,
-  Button,
-  Select,
-  MenuItem,
-  List,
-  ListItem,
-  ListItemText,
-  TextField,
-  Grid,
-  Paper,
-  Divider,
-} from "@mui/material";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import ClientPDF from "./ClientPDF";
-import useStore from "../store";
+// import React, { useState, useEffect } from "react";
+// import {
+//   Modal,
+//   Box,
+//   Typography,
+//   Button,
+//   Select,
+//   MenuItem,
+//   List,
+//   ListItem,
+//   ListItemText,
+//   TextField,
+//   Grid,
+//   Paper,
+//   Divider,
+// } from "@mui/material";
+// import { PDFDownloadLink } from "@react-pdf/renderer";
+// import ClientPDF from "./ClientPDF";
+// import useStore from "../store";
 
-const modalStyle = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: { xs: "95%", sm: "80%", md: "60%" },
-  maxHeight: "90vh",
-  overflowY: "auto",
-  bgcolor: "background.paper",
-  boxShadow: 24,
-  p: 4,
-  borderRadius: 2,
-};
+// const modalStyle = {
+//   position: "absolute",
+//   top: "50%",
+//   left: "50%",
+//   transform: "translate(-50%, -50%)",
+//   width: { xs: "95%", sm: "80%", md: "60%" },
+//   maxHeight: "90vh",
+//   overflowY: "auto",
+//   bgcolor: "background.paper",
+//   boxShadow: 24,
+//   p: 4,
+//   borderRadius: 2,
+// };
 
-const formatCurrency = (value) => {
-  if (!value) return "";
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(value);
-};
+// const formatCurrency = (value) => {
+//   if (!value) return "";
+//   return new Intl.NumberFormat("pt-BR", {
+//     style: "currency",
+//     currency: "BRL",
+//   }).format(value);
+// };
 
 // const ClientModal = ({ client, onClose }) => {
 //   const products = useStore((state) => state.products);
@@ -54,6 +54,7 @@ const formatCurrency = (value) => {
 //   const [temporaryPackages, setTemporaryPackages] = useState([]);
 
 //   const [additionalValue, setAdditionalValue] = useState("");
+//   const [banhoDates, setBanhoDates] = useState([]); // Novo estado para datas dos banhos
 
 //   useEffect(() => {
 //     if (client) {
@@ -73,7 +74,24 @@ const formatCurrency = (value) => {
 //     if (selectedPackage) {
 //       setTemporaryPackages([...temporaryPackages, selectedPackage]);
 //       setSelectedPackage("");
+//       scheduleBanhos(selectedPackage.numBanhos);
 //     }
+//   };
+
+//   const scheduleBanhos = (numBanhos) => {
+//     const dates = [];
+//     let currentDate = new Date();
+
+//     for (let i = 0; i < numBanhos; i++) {
+//       if (currentDate.getDay() === 0) {
+//         // Se for domingo, muda para segunda-feira
+//         currentDate.setDate(currentDate.getDate() + 1);
+//       }
+//       dates.push(new Date(currentDate));
+//       currentDate.setDate(currentDate.getDate() + 7); // Adiciona 7 dias para o próximo banho
+//     }
+
+//     setBanhoDates(dates);
 //   };
 
 //   const handleValueChange = (e) => {
@@ -85,52 +103,41 @@ const formatCurrency = (value) => {
 //   return (
 //     <Modal open={!!client} onClose={onClose}>
 //       <Paper sx={modalStyle}>
-//         <Typography variant="h5" gutterBottom>
-//           {client.name}
-//         </Typography>
-//         <Typography variant="body1">CPF/CNPJ: {client.cpfCnpj}</Typography>
-//         <Typography variant="body1">Telefone: {client.phone}</Typography>
+//         <div style={{display: "flex", justifyContent: "space-between"}}> 
+//           <div>
 
-//         <TextField
-//           fullWidth
-//           label="Valor Adicional"
-//           type="text"
-//           value={formatCurrency(additionalValue)}
-//           onChange={handleValueChange}
-//           margin="normal"
-//           sx={{ mt: 2 }}
-//         />
+//           <Typography variant="h5" gutterBottom>
+//             {client.name}
+//           </Typography>
+//           <Typography variant="body1">CPF/CNPJ: {client.cpfCnpj}</Typography>
+//           <Typography variant="body1">Telefone: {client.phone}</Typography>
+//           </div>
 
+//           <TextField
+//             // fullWidth
+//             label="Valor Adicional"
+//             type="text"
+//             value={formatCurrency(additionalValue)}
+//             onChange={handleValueChange}
+//             margin="normal"
+//             sx={{ mt: 2 }}
+//           />
+//         </div>
 //         {(temporaryProducts.length > 0 || temporaryPackages.length > 0) && (
 //           <>
-//             {/* <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
-//               Itens na Nota:
-//             </Typography> */}
 //             <div>
 //               {temporaryProducts.map((product, index) => (
-//                 // <ListItem key={index}>
-//                 //   <ListItemText
-//                 //     primary={product.name || 'Produto sem nome'}
-//                 //     secondary={formatCurrency(product.price || 0)}
-//                 //   />
-//                 // </ListItem>
 //                 <TextField
 //                   fullWidth
 //                   key={index}
 //                   label={product.name || "Produto sem nome"}
 //                   type="text"
 //                   value={formatCurrency(product.price || 0)}
-//                   // onChange={handleValueChange}
 //                   margin="normal"
 //                   sx={{ mt: 2 }}
 //                 />
-
-//                 // <div key={index}>
-//                 //   <h5>Pacote: {product.name || 'Produto sem nome'}</h5>
-//                 //   <h5>Valor: {formatCurrency(product.price || 0)}</h5>
-//                 // </div>
 //               ))}
-//               <Divider/>
+//               <Divider />
 //               {temporaryPackages.map((pack, index) => (
 //                 <TextField
 //                   fullWidth
@@ -138,20 +145,25 @@ const formatCurrency = (value) => {
 //                   label={pack.nomePacote || "Pacote sem nome"}
 //                   type="text"
 //                   value={formatCurrency(pack.preco || 0)}
-//                   //  onChange={handleValueChange}
 //                   margin="normal"
 //                   sx={{ mt: 2 }}
 //                 />
-
-//                 // <ListItem key={index}>
-//                 //   <ListItemText
-//                 //     primary={pack.nomePacote || 'Pacote sem nome'}
-//                 //     secondary={formatCurrency(pack.preco || 0)}
-//                 //   />
-//                 // </ListItem>
 //               ))}
 //             </div>
 //           </>
+//         )}
+
+//         {banhoDates.length > 0 && (
+//           <div>
+//             <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
+//               Datas dos Banhos:
+//             </Typography>
+//             {banhoDates.map((date, index) => (
+//               <Typography key={index} variant="body1">
+//                 Banho {index + 1}: {date.toLocaleDateString()}
+//               </Typography>
+//             ))}
+//           </div>
 //         )}
 
 //         <Grid container spacing={2} sx={{ mt: 2 }}>
@@ -200,7 +212,8 @@ const formatCurrency = (value) => {
 //               </MenuItem>
 //               {pacotes.map((pack) => (
 //                 <MenuItem key={pack.id} value={pack}>
-//                   {pack.nomePacote} - {formatCurrency(pack.preco)}
+//                   {pack.nomePacote} - {formatCurrency(pack.preco)} -{" "}
+//                   {pack.numBanhos} banhos
 //                 </MenuItem>
 //               ))}
 //             </Select>
@@ -231,6 +244,7 @@ const formatCurrency = (value) => {
 //                 products={temporaryProducts}
 //                 packages={temporaryPackages}
 //                 additionalValue={parseFloat(additionalValue) || 0}
+//                 banhoDates={banhoDates}
 //               />
 //             }
 //             fileName={`${client.name}.pdf`}
@@ -256,6 +270,49 @@ const formatCurrency = (value) => {
 // };
 
 // export default ClientModal;
+import React, { useState, useEffect } from "react";
+import {
+  Modal,
+  Box,
+  Typography,
+  Button,
+  Select,
+  MenuItem,
+  TextField,
+  Grid,
+  Paper,
+  Divider,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from "@mui/material";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import ClientPDF from "./ClientPDF";
+import useStore from "../store";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+
+const modalStyle = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: { xs: "95%", sm: "80%", md: "60%" },
+  maxHeight: "90vh",
+  overflowY: "auto",
+  bgcolor: "background.paper",
+  boxShadow: 24,
+  p: 4,
+  borderRadius: 2,
+};
+
+const formatCurrency = (value) => {
+  if (!value) return "";
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(value);
+};
+
 const ClientModal = ({ client, onClose }) => {
   const products = useStore((state) => state.products);
   const fetchProducts = useStore((state) => state.fetchProducts);
@@ -270,7 +327,8 @@ const ClientModal = ({ client, onClose }) => {
   const [temporaryPackages, setTemporaryPackages] = useState([]);
 
   const [additionalValue, setAdditionalValue] = useState("");
-  const [banhoDates, setBanhoDates] = useState([]); // Novo estado para datas dos banhos
+  const [banhoDates, setBanhoDates] = useState([]);
+  const [selectedBanhoDate, setSelectedBanhoDate] = useState("");
 
   useEffect(() => {
     if (client) {
@@ -299,11 +357,11 @@ const ClientModal = ({ client, onClose }) => {
     let currentDate = new Date();
 
     for (let i = 0; i < numBanhos; i++) {
-      if (currentDate.getDay() === 0) { // Se for domingo, muda para segunda-feira
+      if (currentDate.getDay() === 0) {
         currentDate.setDate(currentDate.getDate() + 1);
       }
       dates.push(new Date(currentDate));
-      currentDate.setDate(currentDate.getDate() + 7); // Adiciona 7 dias para o próximo banho
+      currentDate.setDate(currentDate.getDate() + 7);
     }
 
     setBanhoDates(dates);
@@ -315,28 +373,43 @@ const ClientModal = ({ client, onClose }) => {
     setAdditionalValue(formattedValue);
   };
 
+  const handleBanhoDateChange = (e) => {
+    setSelectedBanhoDate(e.target.value);
+  };
+
+  const calculateBanhoValue = (pack) => {
+    if (!pack || !pack.preco || !pack.numBanhos) return 0;
+    return pack.preco / pack.numBanhos;
+  };
+
   return (
     <Modal open={!!client} onClose={onClose}>
       <Paper sx={modalStyle}>
-        <Typography variant="h5" gutterBottom>
-          {client.name}
-        </Typography>
-        <Typography variant="body1">CPF/CNPJ: {client.cpfCnpj}</Typography>
-        <Typography variant="body1">Telefone: {client.phone}</Typography>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div>
+            <Typography variant="h5" gutterBottom>
+              {client.name}
+            </Typography>
+            <Typography variant="body1">CPF/CNPJ: {client.cpfCnpj}</Typography>
+            <Typography variant="body1">Telefone: {client.phone}</Typography>
+          </div>
 
-        <TextField
-          fullWidth
-          label="Valor Adicional"
-          type="text"
-          value={formatCurrency(additionalValue)}
-          onChange={handleValueChange}
-          margin="normal"
-          sx={{ mt: 2 }}
-        />
+          <TextField
+            label="Valor Adicional"
+            type="text"
+            value={formatCurrency(additionalValue)}
+            onChange={handleValueChange}
+            margin="normal"
+            sx={{ mt: 2 }}
+          />
+        </div>
 
         {(temporaryProducts.length > 0 || temporaryPackages.length > 0) && (
-          <>
-            <div>
+          <Accordion sx={{ mt: 2 }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography variant="h6">Detalhes do Pedido</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
               {temporaryProducts.map((product, index) => (
                 <TextField
                   fullWidth
@@ -348,7 +421,7 @@ const ClientModal = ({ client, onClose }) => {
                   sx={{ mt: 2 }}
                 />
               ))}
-              <Divider/>
+              <Divider sx={{ my: 2 }} />
               {temporaryPackages.map((pack, index) => (
                 <TextField
                   fullWidth
@@ -360,21 +433,38 @@ const ClientModal = ({ client, onClose }) => {
                   sx={{ mt: 2 }}
                 />
               ))}
-            </div>
-          </>
+            </AccordionDetails>
+          </Accordion>
         )}
 
         {banhoDates.length > 0 && (
-          <div>
-            <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
-              Datas dos Banhos:
-            </Typography>
-            {banhoDates.map((date, index) => (
-              <Typography key={index} variant="body1">
-                Banho {index + 1}: {date.toLocaleDateString()}
-              </Typography>
-            ))}
-          </div>
+          <Accordion sx={{ mt: 2 }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography variant="h6">Datas dos Banhos</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Select
+                fullWidth
+                value={selectedBanhoDate}
+                onChange={handleBanhoDateChange}
+                displayEmpty
+              >
+                <MenuItem value="" disabled>
+                  Selecione uma data de banho
+                </MenuItem>
+                {banhoDates.map((date, index) => (
+                  <MenuItem key={index} value={date.toLocaleDateString()}>
+                    {date.toLocaleDateString()} -{" "}
+                    {formatCurrency(
+                      calculateBanhoValue(
+                        temporaryPackages[temporaryPackages.length - 1]
+                      )
+                    )}
+                  </MenuItem>
+                ))}
+              </Select>
+            </AccordionDetails>
+          </Accordion>
         )}
 
         <Grid container spacing={2} sx={{ mt: 2 }}>
@@ -423,7 +513,8 @@ const ClientModal = ({ client, onClose }) => {
               </MenuItem>
               {pacotes.map((pack) => (
                 <MenuItem key={pack.id} value={pack}>
-                  {pack.nomePacote} - {formatCurrency(pack.preco)} - {pack.numBanhos} banhos
+                  {pack.nomePacote} - {formatCurrency(pack.preco)} -{" "}
+                  {pack.numBanhos} banhos
                 </MenuItem>
               ))}
             </Select>

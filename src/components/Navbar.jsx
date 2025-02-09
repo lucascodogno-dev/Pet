@@ -85,7 +85,10 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Link } from "react-router-dom";
-
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import GroupAddIcon from '@mui/icons-material/GroupAdd';
+import ContentPasteIcon from '@mui/icons-material/ContentPaste';
+import LayersIcon from '@mui/icons-material/Layers';
 const Navbar = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -127,7 +130,7 @@ const Navbar = () => {
             to="/"
             onClick={() => setDrawerOpen(false)}
           >
-            <ListItemText primary="Clientes" />
+          <GroupAddIcon style={{marginRight: "15px"}}/>  <ListItemText primary="Cadastro - Cliente" />
           </ListItem>
           <ListItem disablePadding sx={listItemStyles}>
             <ListItemButton
@@ -135,7 +138,7 @@ const Navbar = () => {
               to="/clients"
               onClick={() => setDrawerOpen(false)}
             >
-              <ListItemText primary="Clientes" />
+            <AccountBoxIcon style={{marginRight: "15px"}}/>  <ListItemText primary="Clientes" />
             </ListItemButton>
           </ListItem>
           <ListItem
@@ -145,7 +148,7 @@ const Navbar = () => {
             to="/products"
             onClick={() => setDrawerOpen(false)}
           >
-            <ListItemText primary="Produtos" />
+          <ContentPasteIcon style={{marginRight: "15px"}}/>  <ListItemText primary="Produtos" />
           </ListItem>
           <ListItem
             sx={listItemStyles}
@@ -154,7 +157,7 @@ const Navbar = () => {
             to="/pacotes"
             onClick={() => setDrawerOpen(false)}
           >
-            <ListItemText primary="Pacotes" />
+           <LayersIcon style={{marginRight: "15px"}}/> <ListItemText primary="Pacotes" />
           </ListItem>
         </List>
       </Drawer>

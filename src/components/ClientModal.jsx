@@ -358,10 +358,11 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import { PDFDownloadLink } from "@react-pdf/renderer";
+import { PDFDownloadLink, BlobProvider } from "@react-pdf/renderer";
 import ClientPDF from "./ClientPDF";
 import useStore from "../store";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import axios from "axios";
 
 const modalStyle = {
   position: "absolute",
@@ -383,6 +384,23 @@ const formatCurrency = (value) => {
     style: "currency",
     currency: "BRL",
   }).format(value);
+};
+
+const uploadPdfToFileIo = async (pdfBlob) => {
+  const formData = new FormData();
+  formData.append("file", pdfBlob, "nota_fiscal.pdf");
+
+  try {
+    const response = await axios.post("https://file.io", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data.link; // Retorna o link do PDF
+  } catch (error) {
+    console.error("Erro ao enviar o PDF:", error);
+    return null;
+  }
 };
 
 const ClientModal = ({ client, onClose }) => {
@@ -487,13 +505,33 @@ const ClientModal = ({ client, onClose }) => {
     return pack.preco / pack.numBanhos;
   };
 
-  const handleSendWhatsApp = () => {
+  const handleSendWhatsApp = async () => {
     if (pdfBlob && client.phone) {
-      const phone = client.phone.replace(/\D/g, ""); // Remove caracteres não numéricos
-      const whatsappLink = `https://wa.me/${phone}?text=Olá, aqui está sua nota fiscal:`;
-      window.open(whatsappLink, "_blank");
+      const pdfLink = await uploadPdfToFileIo(pdfBlob);
+
+      if (pdfLink) {
+        const phone = client.phone.replace(/\D/g, ""); // Remove caracteres não numéricos
+        const message = `Olá, aqui está sua nota fiscal: ${pdfLink}`;
+        const whatsappLink = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+        window.open(whatsappLink, "_blank");
+      } else {
+        alert("Erro ao gerar o link do PDF.");
+      }
+
       setWhatsappModalOpen(false);
     }
+  };
+
+  const handleDownloadPdf = (blob) => {
+    // Cria um link temporário para o Blob do PDF
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${client.name}.pdf`; // Nome do arquivo
+    document.body.appendChild(link);
+    link.click(); // Dispara o download
+    document.body.removeChild(link); // Remove o link do DOM
+    URL.revokeObjectURL(url); // Libera a memória do Blob
   };
 
   return (
@@ -641,7 +679,7 @@ const ClientModal = ({ client, onClose }) => {
             gap: 2,
           }}
         >
-          <PDFDownloadLink
+          <BlobProvider
             document={
               <ClientPDF
                 client={client}
@@ -651,7 +689,6 @@ const ClientModal = ({ client, onClose }) => {
                 banhoDates={banhoDates}
               />
             }
-            fileName={`${client.name}.pdf`}
           >
             {({ blob, loading }) => (
               <Button
@@ -659,15 +696,17 @@ const ClientModal = ({ client, onClose }) => {
                 color="secondary"
                 disabled={loading}
                 onClick={() => {
-                  setPdfBlob(blob);
-                  setWhatsappModalOpen(true);
+                  if (blob) {
+                    setPdfBlob(blob);
+                    handleDownloadPdf(blob);
+                  }
                 }}
                 fullWidth
               >
                 {loading ? "Carregando PDF..." : "Baixar PDF"}
               </Button>
             )}
-          </PDFDownloadLink>
+          </BlobProvider>
           <Button onClick={onClose} variant="outlined" fullWidth>
             Fechar
           </Button>

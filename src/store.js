@@ -225,6 +225,18 @@ const useStore = create((set) => ({
       products: state.products.filter((product) => product.id !== id),
     }));
   },
+  saveNotaFiscal: async (cpf, notaData) => {
+    try {
+      // Adiciona a nota fiscal na coleção 'notas' com o CPF como referência
+      const docRef = await addDoc(collection(db, 'notas'), {
+        cpf,
+        ...notaData,
+      });
+      console.log('Nota fiscal salva com ID:', docRef.id);
+    } catch (error) {
+      console.error('Erro ao salvar nota fiscal:', error);
+    }
+  },
 }));
 
 export default useStore;

@@ -14,6 +14,8 @@
 //   Accordion,
 //   AccordionSummary,
 //   AccordionDetails,
+//   Snackbar,
+//   Alert,
 // } from "@mui/material";
 // import { PDFDownloadLink } from "@react-pdf/renderer";
 // import ClientPDF from "./ClientPDF";
@@ -60,6 +62,10 @@
 //   const [selectedBanhoDate, setSelectedBanhoDate] = useState("");
 //   const saveNotaFiscal = useStore((state) => state.saveNotaFiscal);
 
+//   const [snackbarOpen, setSnackbarOpen] = useState(false);
+//   const [snackbarMessage, setSnackbarMessage] = useState("");
+//   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+
 //   const handleSaveNotaFiscal = async () => {
 //     const notaData = {
 //       clientName: client.name,
@@ -73,8 +79,16 @@
 //       totalValue: calculateTotalValue(),
 //     };
 
-//     await saveNotaFiscal(client.cpfCnpj, notaData);
-//     alert('Nota fiscal salva com sucesso!');
+//     try {
+//       await saveNotaFiscal(client.cpfCnpj, notaData);
+//       setSnackbarMessage("Nota fiscal salva com sucesso!");
+//       setSnackbarSeverity("success");
+//       setSnackbarOpen(true);
+//     } catch (error) {
+//       setSnackbarMessage("Erro ao salvar a nota fiscal.");
+//       setSnackbarSeverity("error");
+//       setSnackbarOpen(true);
+//     }
 //   };
 
 //   const calculateTotalValue = () => {
@@ -282,7 +296,6 @@
 //                 packages={temporaryPackages}
 //                 additionalValue={parseFloat(additionalValue) || 0}
 //                 banhoDates={banhoDates}
-               
 //               />
 //             }
 //             fileName={`${client.name}.pdf`}
@@ -303,6 +316,20 @@
 //             Fechar
 //           </Button>
 //         </Box>
+
+//         <Snackbar
+//           open={snackbarOpen}
+//           autoHideDuration={6000}
+//           onClose={() => setSnackbarOpen(false)}
+//         >
+//           <Alert
+//             onClose={() => setSnackbarOpen(false)}
+//             severity={snackbarSeverity}
+//             sx={{ width: "100%" }}
+//           >
+//             {snackbarMessage}
+//           </Alert>
+//         </Snackbar>
 //       </Paper>
 //     </Modal>
 //   );
@@ -326,6 +353,10 @@ import {
   AccordionDetails,
   Snackbar,
   Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import ClientPDF from "./ClientPDF";
@@ -375,6 +406,9 @@ const ClientModal = ({ client, onClose }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+
+  const [whatsappModalOpen, setWhatsappModalOpen] = useState(false);
+  const [pdfBlob, setPdfBlob] = useState(null);
 
   const handleSaveNotaFiscal = async () => {
     const notaData = {
@@ -451,6 +485,15 @@ const ClientModal = ({ client, onClose }) => {
   const calculateBanhoValue = (pack) => {
     if (!pack || !pack.preco || !pack.numBanhos) return 0;
     return pack.preco / pack.numBanhos;
+  };
+
+  const handleSendWhatsApp = () => {
+    if (pdfBlob && client.phone) {
+      const phone = client.phone.replace(/\D/g, ""); // Remove caracteres não numéricos
+      const whatsappLink = `https://wa.me/${phone}?text=Olá, aqui está sua nota fiscal:`;
+      window.open(whatsappLink, "_blank");
+      setWhatsappModalOpen(false);
+    }
   };
 
   return (
@@ -610,12 +653,15 @@ const ClientModal = ({ client, onClose }) => {
             }
             fileName={`${client.name}.pdf`}
           >
-            {({ loading }) => (
+            {({ blob, loading }) => (
               <Button
                 variant="contained"
                 color="secondary"
                 disabled={loading}
-                onClick={handleSaveNotaFiscal}
+                onClick={() => {
+                  setPdfBlob(blob);
+                  setWhatsappModalOpen(true);
+                }}
                 fullWidth
               >
                 {loading ? "Carregando PDF..." : "Baixar PDF"}
@@ -640,6 +686,24 @@ const ClientModal = ({ client, onClose }) => {
             {snackbarMessage}
           </Alert>
         </Snackbar>
+
+        <Dialog
+          open={whatsappModalOpen}
+          onClose={() => setWhatsappModalOpen(false)}
+        >
+          <DialogTitle>Enviar PDF via WhatsApp</DialogTitle>
+          <DialogContent>
+            <Typography>
+              Deseja enviar o PDF para o número do cliente {client.phone}?
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setWhatsappModalOpen(false)}>Cancelar</Button>
+            <Button onClick={handleSendWhatsApp} color="primary">
+              Enviar
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Paper>
     </Modal>
   );

@@ -225,6 +225,12 @@ const useStore = create((set) => ({
       products: state.products.filter((product) => product.id !== id),
     }));
   },
+  fetchNotas: async () => {
+    const querySnapshot = await getDocs(collection(db, 'notas'));
+    const notas = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    set({ notas });
+  },
+
   saveNotaFiscal: async (cpf, notaData) => {
     try {
       // Adiciona a nota fiscal na coleção 'notas' com o CPF como referência

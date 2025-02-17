@@ -817,35 +817,22 @@ const ClientModal = ({ client, onClose }) => {
     return pack.preco / pack.numBanhos;
   };
 
-  const handleSendWhatsApp = async (pdfBlob) => {
-    // 1. Enviar o PDF para um servidor e obter o link
-    const pdfUrl = await uploadPDFToServer(pdfBlob); // Implemente essa função
+  const handleSendWhatsApp = (pdfBlob) => {
+    // Criar um link de download temporário para o PDF
+    const pdfUrl = URL.createObjectURL(pdfBlob);
   
-    // 2. Formatar o número do cliente
+    // Formatar o número do cliente
     const phone = `+55${client.phone.replace(/\D/g, '')}`;
   
-    // 3. Criar a mensagem com o link do PDF
-    const message = `Olá ${client.name}, segue sua nota fiscal: ${pdfUrl}`;
+    // Criar a mensagem com instruções para baixar o PDF
+    const message = `Olá ${client.name}, segue o link para baixar sua nota fiscal: ${pdfUrl}`;
     const url = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
   
-    // 4. Abrir o WhatsApp
+    // Abrir o WhatsApp
     const link = document.createElement('a');
     link.href = url;
     link.target = '_blank';
     link.click();
-  };
-  
-  // Função de exemplo para enviar o PDF para um servidor
-  const uploadPDFToServer = async (pdfBlob) => {
-    // Aqui você implementaria a lógica para enviar o PDF para um servidor
-    // e retornar o link público do arquivo.
-    // Exemplo fictício:
-    const response = await fetch('https://seuservidor.com/upload', {
-      method: 'POST',
-      body: pdfBlob,
-    });
-    const data = await response.json();
-    return data.url; // Retorna o link do PDF
   };
 
   return (

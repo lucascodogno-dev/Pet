@@ -691,7 +691,7 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-import { PDFDownloadLink, BlobProvider } from "@react-pdf/renderer";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 import ClientPDF from "./ClientPDF";
 import useStore from "../store";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -771,6 +771,13 @@ const ClientModal = ({ client, onClose }) => {
     return productsTotal + packagesTotal + (parseFloat(additionalValue) || 0);
   };
 
+  const handleSendWhatsApp = () => {
+    const phoneNumber = `+55${client.phone.replace(/\D/g, '')}`; // Remove caracteres não numéricos e adiciona +55
+    const message = `Olá ${client.name}, sua nota fiscal está pronta para download: https://amicaopetshop.netlify.app/download-nota-fiscal/${client.cpfCnpj}`;
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   useEffect(() => {
     if (client) {
       fetchProducts();
@@ -815,24 +822,6 @@ const ClientModal = ({ client, onClose }) => {
   const calculateBanhoValue = (pack) => {
     if (!pack || !pack.preco || !pack.numBanhos) return 0;
     return pack.preco / pack.numBanhos;
-  };
-
-  const handleSendWhatsApp = (pdfBlob) => {
-    // Criar um link de download temporário para o PDF
-    const pdfUrl = URL.createObjectURL(pdfBlob);
-  
-    // Formatar o número do cliente
-    const phone = `+55${client.phone.replace(/\D/g, '')}`;
-  
-    // Criar a mensagem com instruções para baixar o PDF
-    const message = `Olá ${client.name}, segue o link para baixar sua nota fiscal: ${pdfUrl}`;
-    const url = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
-  
-    // Abrir o WhatsApp
-    const link = document.createElement('a');
-    link.href = url;
-    link.target = '_blank';
-    link.click();
   };
 
   return (
@@ -980,7 +969,7 @@ const ClientModal = ({ client, onClose }) => {
             gap: 2,
           }}
         >
-          <BlobProvider
+          <PDFDownloadLink
             document={
               <ClientPDF
                 client={client}
@@ -990,30 +979,23 @@ const ClientModal = ({ client, onClose }) => {
                 banhoDates={banhoDates}
               />
             }
+            fileName={`${client.name}.pdf`}
           >
-            {({ blob, url, loading }) => (
-              <>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  disabled={loading}
-                  onClick={handleSaveNotaFiscal}
-                  fullWidth
-                >
-                  {loading ? "Carregando PDF..." : "Baixar PDF"}
-                </Button>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  disabled={loading}
-                  onClick={() => handleSendWhatsApp(blob)}
-                  fullWidth
-                >
-                  {loading ? "Carregando..." : "Enviar por WhatsApp"}
-                </Button>
-              </>
+            {({ loading }) => (
+              <Button
+                variant="contained"
+                color="secondary"
+                disabled={loading}
+                onClick={handleSaveNotaFiscal}
+                fullWidth
+              >
+                {loading ? "Carregando PDF..." : "Baixar PDF"}
+              </Button>
             )}
-          </BlobProvider>
+          </PDFDownloadLink>
+          <Button onClick={handleSendWhatsApp} variant="contained" color="primary" fullWidth>
+            Enviar por WhatsApp
+          </Button>
           <Button onClick={onClose} variant="outlined" fullWidth>
             Fechar
           </Button>
